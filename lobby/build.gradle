@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass = 'com.github.CommunitySourcedMinecraft.Lobby'
+    mainClass = 'com.github.CommunitySourcedMinecraft.Main'
 }
 
 group = 'com.github.CommunitySourcedMinecraft'

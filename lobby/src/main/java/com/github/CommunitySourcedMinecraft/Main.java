@@ -8,7 +8,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 
-public class Lobby {
+public class Main {
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init();
 
