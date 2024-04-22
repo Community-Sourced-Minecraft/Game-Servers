@@ -6,6 +6,7 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 
 public class Main {
@@ -14,6 +15,7 @@ public class Main {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instanceContainer = instanceManager.createInstanceContainer();
+        instanceContainer.setChunkSupplier(LightingChunk::new);
         instanceContainer.setGenerator(unit ->
                 unit.modifier().fillHeight(0, 40, Block.STONE));
 
