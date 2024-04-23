@@ -9,6 +9,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,11 @@ public class Main {
 		}
 
 		MinecraftServer minecraftServer = MinecraftServer.init();
+
+		// WARN net.minestom.server.listener.manager.PacketListenerManager -- Packet class net.minestom.server.network.packet.client.play.ClientChatAckPacket does not have any default listener! (The issue comes from Minestom)
+		MinecraftServer
+			.getPacketListenerManager()
+			.setPlayListener(ClientChatAckPacket.class, (player, packet) -> {});
 
 		InstanceManager instanceManager = MinecraftServer.getInstanceManager();
 		InstanceContainer instanceContainer = instanceManager.createInstanceContainer();
