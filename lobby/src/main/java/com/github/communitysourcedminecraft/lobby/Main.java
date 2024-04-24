@@ -1,5 +1,9 @@
 package com.github.communitysourcedminecraft.lobby;
 
+import com.github.communitysourcedminecraft.lobby.rpc.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.nats.client.Nats;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
@@ -21,16 +25,57 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Main {
-	static Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Gson gson = new GsonBuilder()
+		.disableHtmlEscaping()
+		.create();
 
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
 
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
 		var proxySecret = System.getenv("PROXY_SECRET");
 		if (proxySecret != null) {
 			logger.info("Enabling Velocity proxy support...");
 			VelocityProxy.enable(proxySecret);
 		}
+
+		var natsUrl = System.getenv("NATS_URL");
+		var network = System.getenv("CSMC_NETWORK");
+		var gameMode = System.getenv("CSMC_GAMEMODE");
+		var podName = System.getenv("POD_NAME");
+		var podNamespace = System.getenv("POD_NAMESPACE");
+
+		var natsSubject = "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
+
+		var nc = Nats.connectReconnectOnConnect(natsUrl);
+
+		nc
+			.createDispatcher((msg) -> {
+				try {
+					var rpc = gson.fromJson(new String(msg.getData()), RpcRequest.class);
+					logger.info("Received RPC: {}", rpc);
+
+					switch (rpc.type()) {
+						case START_INSTALL -> {
+							var req = gson.fromJson(rpc.data(), RpcStartInstall.Request.class);
+
+							logger.info("Received START_INSTALL request: {}", req);
+
+							var startInstallResponse = new RpcStartInstall.Response(Status.OK, "Hello from Java!");
+
+							nc.publish(msg.getReplyTo(), gson
+								.toJson(new RpcResponse(RpcType.START_INSTALL, startInstallResponse))
+								.getBytes());
+						}
+						case null, default -> {
+							logger.warn("Unknown RPC type: {}", rpc.type());
+						}
+					}
+				} catch (Exception e) {
+					logger.error("Error processing RPC", e);
+				}
+			})
+			.subscribe(natsSubject);
 
 		var minecraftServer = MinecraftServer.init();
 
