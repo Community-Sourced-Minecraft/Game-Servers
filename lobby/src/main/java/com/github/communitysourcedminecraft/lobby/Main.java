@@ -3,15 +3,17 @@ package com.github.communitysourcedminecraft.lobby;
 import com.github.communitysourcedminecraft.lobby.rpc.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.nats.client.JetStreamApiException;
 import io.nats.client.Nats;
+import io.nats.client.api.KeyValueConfiguration;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.LightingChunk;
@@ -32,7 +34,7 @@ public class Main {
 
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
 
-	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
+	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException, JetStreamApiException {
 		var proxySecret = System.getenv("PROXY_SECRET");
 		if (proxySecret != null) {
 			logger.info("Enabling Velocity proxy support...");
@@ -45,9 +47,17 @@ public class Main {
 		var podName = System.getenv("POD_NAME");
 		var podNamespace = System.getenv("POD_NAMESPACE");
 
-		var natsSubject = "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
+		var podSubject = "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
 
 		var nc = Nats.connectReconnectOnConnect(natsUrl);
+		var playerKVStream = "csmc_" + podNamespace + "_" + network + "_gamemode_" + gameMode + "_players";
+		nc
+			.keyValueManagement()
+			.create(KeyValueConfiguration
+				.builder()
+				.name(playerKVStream)
+				.build());
+		var players = nc.keyValue(playerKVStream);
 
 		nc
 			.createDispatcher((msg) -> {
@@ -75,7 +85,7 @@ public class Main {
 					logger.error("Error processing RPC", e);
 				}
 			})
-			.subscribe(natsSubject);
+			.subscribe(podSubject);
 
 		var minecraftServer = MinecraftServer.init();
 
@@ -106,6 +116,12 @@ public class Main {
 			var ip = getPlayerIP(player);
 
 			logger.info("Player {} ({}) connected from {}", player.getUsername(), uuid, ip);
+
+			try {
+				players.put(uuid, podName);
+			} catch (IOException | JetStreamApiException e) {
+				throw new RuntimeException(e);
+			}
 		});
 		globalEventHandler.addListener(PlayerSpawnEvent.class, event -> {
 			var player = event.getPlayer();
@@ -121,6 +137,12 @@ public class Main {
 			var ip = getPlayerIP(player);
 
 			logger.info("Player {} ({}) from {} disconnected", player.getUsername(), uuid, ip);
+
+			try {
+				players.delete(uuid);
+			} catch (IOException | JetStreamApiException e) {
+				throw new RuntimeException(e);
+			}
 		});
 		globalEventHandler.addListener(PlayerMoveEvent.class, event -> {
 			if (event
