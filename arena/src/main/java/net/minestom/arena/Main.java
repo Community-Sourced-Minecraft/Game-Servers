@@ -1,5 +1,13 @@
 package net.minestom.arena;
 
+import com.github.communitysourcedminecraft.hosting.NATSConnection;
+import com.github.communitysourcedminecraft.hosting.ServerInfo;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCStartInstall;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
+import com.github.communitysourcedminecraft.hosting.rpc.Status;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -31,6 +39,7 @@ import net.minestom.server.utils.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,8 +47,11 @@ import static net.minestom.arena.config.ConfigHandler.CONFIG;
 
 final class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Gson gson = new GsonBuilder()
+	    .disableHtmlEscaping()
+	    .create();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         MinecraftServer minecraftServer = MinecraftServer.init();
         if (CONFIG.prometheus().enabled()) Metrics.init();
 
@@ -48,6 +60,22 @@ final class Main {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+
+        var info = ServerInfo.parse();
+        var nats = NATSConnection.connectBlocking(info);
+
+        nats.registerHandler(RPCType.START_INSTALL, reqData -> {
+            var req = gson.fromJson(reqData, RPCStartInstall.Request.class);
+            LOGGER.info("Received START_INSTALL request: {}", req);
+
+            // TODO: Implement installation logic
+
+            var startInstallResponse = new RPCStartInstall.Response(Status.OK, "Hello from Java!");
+
+            return new RPCResponse(RPCType.START_INSTALL, startInstallResponse);
+        });
+
 
         // Commands
         {
