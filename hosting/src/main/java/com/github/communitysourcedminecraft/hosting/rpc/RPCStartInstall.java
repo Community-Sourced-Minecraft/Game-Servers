@@ -1,6 +1,6 @@
-package com.github.communitysourcedminecraft.lobby.rpc;
+package com.github.communitysourcedminecraft.hosting.rpc;
 
-public class RpcStartInstall {
+public class RPCStartInstall {
 	public record Request() {
 	}
 

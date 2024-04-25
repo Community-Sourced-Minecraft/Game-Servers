@@ -1,10 +1,14 @@
 package com.github.communitysourcedminecraft.lobby;
 
-import com.github.communitysourcedminecraft.lobby.rpc.*;
+import com.github.communitysourcedminecraft.hosting.NATSConnection;
+import com.github.communitysourcedminecraft.hosting.ServerInfo;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCStartInstall;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
+import com.github.communitysourcedminecraft.hosting.rpc.Status;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.JetStreamApiException;
-import io.nats.client.Nats;
 import io.nats.client.api.KeyValueConfiguration;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -41,51 +45,31 @@ public class Main {
 			VelocityProxy.enable(proxySecret);
 		}
 
-		var natsUrl = System.getenv("NATS_URL");
-		var network = System.getenv("CSMC_NETWORK");
-		var gameMode = System.getenv("CSMC_GAMEMODE");
-		var podName = System.getenv("POD_NAME");
-		var podNamespace = System.getenv("POD_NAMESPACE");
+		var info = ServerInfo.parse();
+		var nats = NATSConnection.connectBlocking(info);
 
-		var podSubject = "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
-
-		var nc = Nats.connectReconnectOnConnect(natsUrl);
-		var playerKVStream = "csmc_" + podNamespace + "_" + network + "_gamemode_" + gameMode + "_players";
-		nc
+		var playerKVStream = info.kvBaseKey() + "_players";
+		nats
+			.getConnection()
 			.keyValueManagement()
 			.create(KeyValueConfiguration
 				.builder()
 				.name(playerKVStream)
 				.build());
-		var players = nc.keyValue(playerKVStream);
+		var players = nats
+			.getConnection()
+			.keyValue(playerKVStream);
 
-		nc
-			.createDispatcher((msg) -> {
-				try {
-					var rpc = gson.fromJson(new String(msg.getData()), RpcRequest.class);
-					logger.info("Received RPC: {}", rpc);
+		nats.registerHandler(RPCType.START_INSTALL, reqData -> {
+			var req = gson.fromJson(reqData, RPCStartInstall.Request.class);
+			logger.info("Received START_INSTALL request: {}", req);
 
-					switch (rpc.type()) {
-						case START_INSTALL -> {
-							var req = gson.fromJson(rpc.data(), RpcStartInstall.Request.class);
+			// TODO: Implement installation logic
 
-							logger.info("Received START_INSTALL request: {}", req);
+			var startInstallResponse = new RPCStartInstall.Response(Status.OK, "Hello from Java!");
 
-							var startInstallResponse = new RpcStartInstall.Response(Status.OK, "Hello from Java!");
-
-							nc.publish(msg.getReplyTo(), gson
-								.toJson(new RpcResponse(RpcType.START_INSTALL, startInstallResponse))
-								.getBytes());
-						}
-						case null, default -> {
-							logger.warn("Unknown RPC type: {}", rpc.type());
-						}
-					}
-				} catch (Exception e) {
-					logger.error("Error processing RPC", e);
-				}
-			})
-			.subscribe(podSubject);
+			return new RPCResponse(RPCType.START_INSTALL, startInstallResponse);
+		});
 
 		var minecraftServer = MinecraftServer.init();
 
@@ -118,7 +102,7 @@ public class Main {
 			logger.info("Player {} ({}) connected from {}", player.getUsername(), uuid, ip);
 
 			try {
-				players.put(uuid, podName);
+				players.put(uuid, info.podName());
 			} catch (IOException | JetStreamApiException e) {
 				throw new RuntimeException(e);
 			}
