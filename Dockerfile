@@ -23,6 +23,9 @@ case "\$app" in
     lobby)
         exec java -jar /app/lobby.jar "\$@"
         ;;
+    arena)
+        exec java -jar /app/arena.jar "\$@"
+        ;;
     *)
         echo "Unknown app: \$app, trying to run it as a command"
         exec "\$app" "\$@"
