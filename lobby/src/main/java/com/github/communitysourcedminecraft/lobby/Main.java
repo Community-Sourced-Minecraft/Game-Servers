@@ -48,7 +48,7 @@ public class Main {
 		var info = ServerInfo.parse();
 		var nats = NATSConnection.connectBlocking(info);
 
-		var playerKVStream = info.kvBaseKey() + "_players";
+		var playerKVStream = info.kvGamemodeKey() + "_players";
 		nats
 			.getConnection()
 			.keyValueManagement()

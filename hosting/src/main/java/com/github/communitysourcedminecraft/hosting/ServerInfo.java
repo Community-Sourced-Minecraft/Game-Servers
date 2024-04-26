@@ -14,7 +14,11 @@ public record ServerInfo(String network, String gameMode, String podName, String
 		return "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
 	}
 
-	public String kvBaseKey() {
-		return "csmc_" + podNamespace + "_" + network + "_gamemode_" + gameMode;
+	public String kvNetworkKey() {
+		return "csmc_" + podNamespace + "_network_" + network;
+	}
+
+	public String kvGamemodeKey() {
+		return kvNetworkKey() + "_gamemode_" + gameMode;
 	}
 }
