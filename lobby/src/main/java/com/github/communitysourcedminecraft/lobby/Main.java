@@ -1,4 +1,4 @@
-package com.github.CommunitySourcedMinecraft;
+package com.github.communitysourcedminecraft.lobby;
 
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
