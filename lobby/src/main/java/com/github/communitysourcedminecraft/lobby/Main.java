@@ -3,7 +3,9 @@ package com.github.communitysourcedminecraft.lobby;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.LightingChunk;
@@ -47,9 +49,26 @@ public class Main {
 		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
 		globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
 			event.setSpawningInstance(instanceContainer);
-			event
-				.getPlayer()
-				.setRespawnPoint(SPAWN);
+			var player = event.getPlayer();
+
+			player.setRespawnPoint(SPAWN);
+
+			var uuid = player
+				.getUuid()
+				.toString();
+			var ip = getPlayerIP(player);
+
+			logger.info("Player {} ({}) connected from {}", player.getUsername(), uuid, ip);
+		});
+		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
+			var player = event.getPlayer();
+
+			var uuid = player
+				.getUuid()
+				.toString();
+			var ip = getPlayerIP(player);
+
+			logger.info("Player {} ({}) from {} disconnected", player.getUsername(), uuid, ip);
 		});
 		globalEventHandler.addListener(PlayerMoveEvent.class, event -> {
 			if (event
@@ -62,5 +81,12 @@ public class Main {
 		});
 
 		minecraftServer.start("0.0.0.0", 25565);
+	}
+
+	private static String getPlayerIP(Player player) {
+		return player
+			.getPlayerConnection()
+			.getRemoteAddress()
+			.toString();
 	}
 }
