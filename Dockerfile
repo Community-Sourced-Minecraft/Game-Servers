@@ -12,10 +12,6 @@ RUN find /app/build/libs -name "*-all.jar" -exec bash -c 'mv "$1" "${1//-all/}"'
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y wget unzip \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY --from=builder /app/build/libs/*.jar /app/
 RUN cat > /entrypoint.sh <<EOF
 #!/bin/bash
@@ -25,7 +21,6 @@ shift
 
 case "\$app" in
     lobby)
-        wget https://s3.devminer.xyz/csmc/lobby.polar -O /app/world.polar
         exec java -jar /app/lobby.jar "\$@"
         ;;
     *)

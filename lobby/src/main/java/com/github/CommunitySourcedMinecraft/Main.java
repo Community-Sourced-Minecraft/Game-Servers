@@ -11,15 +11,17 @@ import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Main {
 	static Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, URISyntaxException {
 		var proxySecret = System.getenv("PROXY_SECRET");
 		if (proxySecret != null) {
 			logger.info("Enabling Velocity proxy support...");
@@ -36,7 +38,11 @@ public class Main {
 		var instanceManager = MinecraftServer.getInstanceManager();
 		var instanceContainer = instanceManager.createInstanceContainer();
 		instanceContainer.setChunkSupplier(LightingChunk::new);
-		instanceContainer.setChunkLoader(new PolarLoader(Path.of("world.polar")));
+
+		var conn = (HttpsURLConnection) new URI("https://s3.devminer.xyz/csmc/lobby.polar")
+			.toURL()
+			.openConnection();
+		instanceContainer.setChunkLoader(new PolarLoader(conn.getInputStream()));
 
 		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
 		globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
