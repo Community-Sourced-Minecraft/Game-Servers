@@ -1,49 +1,46 @@
 package com.github.CommunitySourcedMinecraft;
 
+import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.extras.velocity.VelocityProxy;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
-import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 public class Main {
 	static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		var proxySecret = System.getenv("PROXY_SECRET");
 		if (proxySecret != null) {
 			logger.info("Enabling Velocity proxy support...");
 			VelocityProxy.enable(proxySecret);
 		}
 
-		MinecraftServer minecraftServer = MinecraftServer.init();
+		var minecraftServer = MinecraftServer.init();
 
 		// WARN net.minestom.server.listener.manager.PacketListenerManager -- Packet class net.minestom.server.network.packet.client.play.ClientChatAckPacket does not have any default listener! (The issue comes from Minestom)
 		MinecraftServer
 			.getPacketListenerManager()
 			.setPlayListener(ClientChatAckPacket.class, (player, packet) -> {});
 
-		InstanceManager instanceManager = MinecraftServer.getInstanceManager();
-		InstanceContainer instanceContainer = instanceManager.createInstanceContainer();
+		var instanceManager = MinecraftServer.getInstanceManager();
+		var instanceContainer = instanceManager.createInstanceContainer();
 		instanceContainer.setChunkSupplier(LightingChunk::new);
-		instanceContainer.setGenerator(unit ->
-			unit
-				.modifier()
-				.fillHeight(0, 40, Block.STONE));
+		instanceContainer.setChunkLoader(new PolarLoader(Path.of("world.polar")));
 
-		GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
+		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
 		globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
 			event.setSpawningInstance(instanceContainer);
 			event
 				.getPlayer()
-				.setRespawnPoint(new Pos(0, 42, 0));
+				.setRespawnPoint(new Pos(0, 42, 0, 180f, 0f));
 		});
 
 		minecraftServer.start("0.0.0.0", 25565);
