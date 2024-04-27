@@ -3,10 +3,12 @@ package com.github.communitysourcedminecraft.lobby;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
@@ -59,6 +61,11 @@ public class Main {
 			var ip = getPlayerIP(player);
 
 			logger.info("Player {} ({}) connected from {}", player.getUsername(), uuid, ip);
+		});
+		globalEventHandler.addListener(PlayerSpawnEvent.class, event -> {
+			var player = event.getPlayer();
+
+			player.setGameMode(GameMode.ADVENTURE);
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
 			var player = event.getPlayer();
