@@ -2,15 +2,15 @@ package com.github.communitysourcedminecraft.lobby;
 
 import com.github.communitysourcedminecraft.hosting.NATSConnection;
 import com.github.communitysourcedminecraft.hosting.ServerInfo;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCStartInstall;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
-import com.github.communitysourcedminecraft.hosting.rpc.Status;
+import com.github.communitysourcedminecraft.hosting.rpc.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.api.KeyValueConfiguration;
 import net.hollowcube.polar.PolarLoader;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
@@ -21,6 +21,8 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.LightingChunk;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +113,34 @@ public class Main {
 			var player = event.getPlayer();
 
 			player.setGameMode(GameMode.ADVENTURE);
+
+			var inv = player.getInventory();
+			inv.setItemStack(22, ItemStack
+				.builder(Material.IRON_SWORD)
+				.amount(1)
+				.displayName(Component
+					.text("Arena")
+					.decoration(TextDecoration.BOLD, true)
+					.decoration(TextDecoration.ITALIC, false))
+				.lore(Component
+					.empty()
+					.append(Component
+						.text("Powered by ", TextColor.color(0xFFD700))
+						.decoration(TextDecoration.ITALIC, false))
+					.append(Component
+						.text("Minestom/Arena", TextColor.color(0xFF0000), TextDecoration.BOLD)
+						.decoration(TextDecoration.ITALIC, false)))
+				.build());
+
+			inv.addInventoryCondition((p, slot, clickType, result) -> {
+				if (slot != 22) return;
+
+				logger.info("Player {} ({}) tried to interact with slot {} using click type {}", p.getUsername(), p.getUuid(), slot, clickType);
+
+				// TODO: Figure out how to transfer player to the Arena server
+
+				result.setCancel(true);
+			});
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
 			var player = event.getPlayer();
