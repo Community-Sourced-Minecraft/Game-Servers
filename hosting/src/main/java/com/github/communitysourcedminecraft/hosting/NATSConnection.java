@@ -2,6 +2,7 @@ package com.github.communitysourcedminecraft.hosting;
 
 import com.github.communitysourcedminecraft.hosting.rpc.RPCRequest;
 import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
+import com.github.communitysourcedminecraft.hosting.rpc.RPCTransferPlayer;
 import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class NATSConnection {
 	private final ServerInfo info;
@@ -80,6 +82,24 @@ public class NATSConnection {
 		instancesKV.put(info.podName(), gson.toJson(info.instanceInfo(port)));
 	}
 
+	public void transferPlayer(UUID uuid, String to) {
+		var inner = gson.toJson(new RPCTransferPlayer.Request(uuid, info.podName(), to));
+		var payload = gson.toJson(new RPCRequest(RPCType.TRANSFER_PLAYER, inner));
+
+		connection
+			.request(info.kvNetworkKey(), payload.getBytes())
+			.handle((message, throwable) -> {
+				if (throwable != null) {
+					logger.error("Error transferring player", throwable);
+					return null;
+				}
+
+				var res = gson.fromJson(new String(message.getData()), RPCTransferPlayer.Response.class);
+				logger.info("Received transfer response: {}", res);
+
+				return null;
+			});
+	}
 
 	@FunctionalInterface
 	public interface RPCHandler {

@@ -140,22 +140,7 @@ public class Main {
 
 				result.setCancel(true);
 
-				nats
-					.getConnection()
-					.request(info.rpcTransfersSubject(), gson
-						.toJson(new RPCRequest(RPCType.TRANSFER_PLAYER, gson.toJson(new RPCTransferPlayer.Request(p.getUuid(), info.podName(), "arena"))))
-						.getBytes())
-					.handle((message, throwable) -> {
-						if (throwable != null) {
-							logger.error("Error transferring player", throwable);
-							return null;
-						}
-
-						var res = gson.fromJson(new String(message.getData()), RPCTransferPlayer.Response.class);
-						logger.info("Received transfer response: {}", res);
-
-						return null;
-					});
+				nats.transferPlayer(p.getUuid(), "arena");
 			});
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {

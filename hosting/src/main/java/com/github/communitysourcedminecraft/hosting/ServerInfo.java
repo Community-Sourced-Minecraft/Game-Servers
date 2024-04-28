@@ -1,5 +1,8 @@
 package com.github.communitysourcedminecraft.hosting;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public record ServerInfo(String network, String gameMode, String podName, String podNamespace) {
 	public static ServerInfo parse() {
 		var network = System.getenv("CSMC_NETWORK");
@@ -12,14 +15,6 @@ public record ServerInfo(String network, String gameMode, String podName, String
 
 	public String rpcNetworkSubject() {
 		return "csmc." + podNamespace + "." + network;
-	}
-
-	public String rpcPodSubject() {
-		return rpcBaseSubject() + ".gamemode." + gameMode + "." + podName;
-	}
-
-	public String rpcTransfersSubject() {
-		return rpcBaseSubject() + ".transfers";
 	}
 
 	public String kvNetworkKey() {
