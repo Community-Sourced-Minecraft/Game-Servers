@@ -8,6 +8,7 @@ import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
 import com.github.communitysourcedminecraft.hosting.rpc.Status;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.nats.client.JetStreamApiException;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -51,7 +52,7 @@ final class Main {
 	    .disableHtmlEscaping()
 	    .create();
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, JetStreamApiException {
         MinecraftServer minecraftServer = MinecraftServer.init();
         if (CONFIG.prometheus().enabled()) Metrics.init();
 
@@ -181,6 +182,8 @@ final class Main {
             OpenToLAN.open();
             if (CONFIG.server().mojangAuth()) MojangAuth.init();
         }
+
+        nats.registerThisInstance(CONFIG.server().port());
 
         minecraftServer.start(CONFIG.server().address());
         System.out.println("Server startup done! Using configuration " + CONFIG);

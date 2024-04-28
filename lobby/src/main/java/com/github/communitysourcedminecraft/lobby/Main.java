@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -39,6 +38,7 @@ public class Main {
 		.disableHtmlEscaping()
 		.create();
 
+	private static final int PORT = 25565;
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
 
 	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException, JetStreamApiException {
@@ -184,7 +184,9 @@ public class Main {
 				.teleport(SPAWN);
 		});
 
-		minecraftServer.start("0.0.0.0", 25565);
+		nats.registerThisInstance(PORT);
+
+		minecraftServer.start("0.0.0.0", PORT);
 	}
 
 	private static String getPlayerIP(Player player) {

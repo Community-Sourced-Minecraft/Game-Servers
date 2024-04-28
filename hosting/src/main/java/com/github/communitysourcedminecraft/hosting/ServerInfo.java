@@ -10,7 +10,7 @@ public record ServerInfo(String network, String gameMode, String podName, String
 		return new ServerInfo(network, gameMode, podName, podNamespace);
 	}
 
-	public String rpcBaseSubject() {
+	public String rpcNetworkSubject() {
 		return "csmc." + podNamespace + "." + network;
 	}
 
@@ -28,5 +28,19 @@ public record ServerInfo(String network, String gameMode, String podName, String
 
 	public String kvGamemodeKey() {
 		return kvNetworkKey() + "_gamemode_" + gameMode;
+	}
+
+	// KV: csmc_<namespace>_<network>_instances<Container hostname, InstanceInfo>
+	public String kvInstancesKey() {
+		return kvNetworkKey() + "_instances";
+	}
+
+	public InstanceInfo instanceInfo(int port) throws UnknownHostException {
+		return new InstanceInfo(gameMode, InetAddress
+			.getLocalHost()
+			.getHostAddress(), port);
+	}
+
+	public record InstanceInfo(String gamemode, String address, int port) {
 	}
 }
