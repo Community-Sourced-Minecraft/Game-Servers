@@ -1,5 +1,6 @@
 rootProject.name = 'GameServers'
 
 include 'hosting'
+include 'utils'
 include 'lobby'
 include 'arena'

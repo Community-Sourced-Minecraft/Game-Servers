@@ -87,7 +87,7 @@ public class NATSConnection {
 		var payload = gson.toJson(new RPCRequest(RPCType.TRANSFER_PLAYER, inner));
 
 		connection
-			.request(info.kvNetworkKey(), payload.getBytes())
+			.request(info.rpcNetworkSubject(), payload.getBytes())
 			.handle((message, throwable) -> {
 				if (throwable != null) {
 					logger.error("Error transferring player", throwable);

@@ -3,6 +3,7 @@ package com.github.communitysourcedminecraft.lobby;
 import com.github.communitysourcedminecraft.hosting.NATSConnection;
 import com.github.communitysourcedminecraft.hosting.ServerInfo;
 import com.github.communitysourcedminecraft.hosting.rpc.*;
+import com.github.communitysourcedminecraft.utils.Menu;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.JetStreamApiException;
@@ -90,6 +91,30 @@ public class Main {
 			.openConnection();
 		instanceContainer.setChunkLoader(new PolarLoader(conn.getInputStream()));
 
+		final var MENU = Menu
+			.builder()
+			.item(22, new Menu.Item(ItemStack
+				.builder(Material.IRON_SWORD)
+				.amount(1)
+				.displayName(Component
+					.text("Arena")
+					.decoration(TextDecoration.BOLD, true)
+					.decoration(TextDecoration.ITALIC, false))
+				.lore(Component
+					.empty()
+					.append(Component
+						.text("Powered by ", TextColor.color(0xFFD700))
+						.decoration(TextDecoration.ITALIC, false))
+					.append(Component
+						.text("Minestom/Arena", TextColor.color(0xFF0000), TextDecoration.BOLD)
+						.decoration(TextDecoration.ITALIC, false)))
+				.build(), (player) -> {
+				logger.info("Player {} ({}) clicked on Arena", player.getUsername(), player.getUuid());
+
+				nats.transferPlayer(player.getUuid(), "arena");
+			}))
+			.build();
+
 		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
 		globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
 			event.setSpawningInstance(instanceContainer);
@@ -115,33 +140,7 @@ public class Main {
 
 			player.setGameMode(GameMode.ADVENTURE);
 
-			var inv = player.getInventory();
-			inv.setItemStack(22, ItemStack
-				.builder(Material.IRON_SWORD)
-				.amount(1)
-				.displayName(Component
-					.text("Arena")
-					.decoration(TextDecoration.BOLD, true)
-					.decoration(TextDecoration.ITALIC, false))
-				.lore(Component
-					.empty()
-					.append(Component
-						.text("Powered by ", TextColor.color(0xFFD700))
-						.decoration(TextDecoration.ITALIC, false))
-					.append(Component
-						.text("Minestom/Arena", TextColor.color(0xFF0000), TextDecoration.BOLD)
-						.decoration(TextDecoration.ITALIC, false)))
-				.build());
-
-			inv.addInventoryCondition((p, slot, clickType, result) -> {
-				if (slot != 22) return;
-
-				logger.info("Player {} ({}) tried to interact with slot {} using click type {}", p.getUsername(), p.getUuid(), slot, clickType);
-
-				result.setCancel(true);
-
-				nats.transferPlayer(p.getUuid(), "arena");
-			});
+			MENU.apply(player.getInventory());
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
 			var player = event.getPlayer();
