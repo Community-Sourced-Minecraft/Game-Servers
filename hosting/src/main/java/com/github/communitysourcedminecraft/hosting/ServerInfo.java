@@ -10,12 +10,20 @@ public record ServerInfo(String network, String gameMode, String podName, String
 		return new ServerInfo(network, gameMode, podName, podNamespace);
 	}
 
-	public String podRPCSubject() {
-		return "csmc." + podNamespace + "." + network + ".gamemode." + gameMode + "." + podName;
+	public String rpcBaseSubject() {
+		return "csmc." + podNamespace + "." + network;
+	}
+
+	public String rpcPodSubject() {
+		return rpcBaseSubject() + ".gamemode." + gameMode + "." + podName;
+	}
+
+	public String rpcTransfersSubject() {
+		return rpcBaseSubject() + ".transfers";
 	}
 
 	public String kvNetworkKey() {
-		return "csmc_" + podNamespace + "_network_" + network;
+		return "csmc_" + podNamespace + "_" + network;
 	}
 
 	public String kvGamemodeKey() {

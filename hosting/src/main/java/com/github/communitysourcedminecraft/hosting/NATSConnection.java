@@ -49,7 +49,7 @@ public class NATSConnection {
 					logger.error("Error processing RPC", e);
 				}
 			})
-			.subscribe(info.podRPCSubject());
+			.subscribe(info.rpcPodSubject());
 	}
 
 	public static NATSConnection connectBlocking(ServerInfo info) throws IOException, InterruptedException {

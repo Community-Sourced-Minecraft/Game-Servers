@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -137,9 +138,24 @@ public class Main {
 
 				logger.info("Player {} ({}) tried to interact with slot {} using click type {}", p.getUsername(), p.getUuid(), slot, clickType);
 
-				// TODO: Figure out how to transfer player to the Arena server
-
 				result.setCancel(true);
+
+				nats
+					.getConnection()
+					.request(info.rpcTransfersSubject(), gson
+						.toJson(new RPCRequest(RPCType.TRANSFER_PLAYER, gson.toJson(new RPCTransferPlayer.Request(p.getUuid(), info.podName(), "arena"))))
+						.getBytes())
+					.handle((message, throwable) -> {
+						if (throwable != null) {
+							logger.error("Error transferring player", throwable);
+							return null;
+						}
+
+						var res = gson.fromJson(new String(message.getData()), RPCTransferPlayer.Response.class);
+						logger.info("Received transfer response: {}", res);
+
+						return null;
+					});
 			});
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
