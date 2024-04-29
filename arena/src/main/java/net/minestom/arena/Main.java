@@ -66,7 +66,7 @@ final class Main {
         var info = ServerInfo.parse();
         var nats = NATSConnection.connectBlocking(info);
 
-        nats.registerHandler(RPCType.START_INSTALL, reqData -> {
+        nats.registerHandler(RPCType.START_INSTALL, (reqData, _msg) -> {
             var req = gson.fromJson(reqData, RPCStartInstall.Request.class);
             LOGGER.info("Received START_INSTALL request: {}", req);
 

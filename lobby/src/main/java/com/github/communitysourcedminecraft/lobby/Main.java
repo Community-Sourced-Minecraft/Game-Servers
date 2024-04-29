@@ -64,7 +64,7 @@ public class Main {
 			.getConnection()
 			.keyValue(playerKVStream);
 
-		nats.registerHandler(RPCType.START_INSTALL, reqData -> {
+		nats.registerHandler(RPCType.START_INSTALL, (reqData, _msg) -> {
 			var req = gson.fromJson(reqData, RPCStartInstall.Request.class);
 			logger.info("Received START_INSTALL request: {}", req);
 

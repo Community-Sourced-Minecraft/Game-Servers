@@ -42,11 +42,12 @@ public class NATSConnection {
 
 				var handler = handlers.get(req.type());
 				if (handler == null) {
-					logger.warn("No handler for RPC type: {}", req.type());
+					logger.warn("No handler for RPC type, nak()ing: {}", req.type());
+					msg.nak();
 					return;
 				}
 
-				var response = handler.handle(req.data());
+				var response = handler.handle(req.data(), msg);
 				connection.publish(msg.getReplyTo(), gson
 					.toJson(new RPCResponse(req.type(), response))
 					.getBytes());
@@ -103,6 +104,6 @@ public class NATSConnection {
 
 	@FunctionalInterface
 	public interface RPCHandler {
-		RPCResponse handle(String reqData);
+		RPCResponse handle(String reqData, Message msg);
 	}
 }
