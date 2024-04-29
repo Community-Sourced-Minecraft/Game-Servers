@@ -184,6 +184,15 @@ final class Main {
         }
 
         nats.registerThisInstance(CONFIG.server().port());
+        MinecraftServer
+            .getSchedulerManager()
+            .buildShutdownTask(() -> {
+                try {
+                    nats.deregisterThisInstance();
+                } catch (IOException | JetStreamApiException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
         minecraftServer.start(CONFIG.server().address());
         System.out.println("Server startup done! Using configuration " + CONFIG);

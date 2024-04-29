@@ -84,6 +84,10 @@ public class NATSConnection {
 		instancesKV.put(info.podName(), gson.toJson(info.instanceInfo(port)));
 	}
 
+	public void deregisterThisInstance() throws IOException, JetStreamApiException {
+		instancesKV.delete(info.podName());
+	}
+
 	public List<String> getServersForGamemode(String gamemode) throws JetStreamApiException, IOException, InterruptedException {
 		return instancesKV
 			.keys()

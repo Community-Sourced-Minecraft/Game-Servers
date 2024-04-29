@@ -197,6 +197,15 @@ public class Main {
 		});
 
 		nats.registerThisInstance(PORT);
+		MinecraftServer
+			.getSchedulerManager()
+			.buildShutdownTask(() -> {
+				try {
+					nats.deregisterThisInstance();
+				} catch (IOException | JetStreamApiException e) {
+					throw new RuntimeException(e);
+				}
+			});
 
 		minecraftServer.start("0.0.0.0", PORT);
 	}
