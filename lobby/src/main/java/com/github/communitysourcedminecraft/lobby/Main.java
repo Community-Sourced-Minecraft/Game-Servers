@@ -1,9 +1,9 @@
 package com.github.communitysourcedminecraft.lobby;
 
-import com.github.communitysourcedminecraft.hosting.NATSConnection;
-import com.github.communitysourcedminecraft.hosting.ServerInfo;
+import com.github.communitysourcedminecraft.hosting.Hosting;
 import com.github.communitysourcedminecraft.hosting.rpc.*;
 import com.github.communitysourcedminecraft.utils.Menu;
+import com.github.communitysourcedminecraft.utils.ServerPicker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.JetStreamApiException;
@@ -16,10 +16,8 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerMoveEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.item.ItemDropEvent;
+import net.minestom.server.event.player.*;
 import net.minestom.server.extras.velocity.VelocityProxy;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.item.ItemStack;
@@ -49,8 +47,9 @@ public class Main {
 			VelocityProxy.enable(proxySecret);
 		}
 
-		var info = ServerInfo.parse();
-		var nats = NATSConnection.connectBlocking(info);
+		var hosting = Hosting.init();
+		var info = hosting.getInfo();
+		var nats = hosting.getNats();
 
 		var playerKVStream = info.kvGamemodeKey() + "_players";
 		nats
@@ -91,8 +90,23 @@ public class Main {
 			.openConnection();
 		instanceContainer.setChunkLoader(new PolarLoader(conn.getInputStream()));
 
+		final var SERVER_PICKER = new ServerPicker("lobby", hosting, Material.DIAMOND_SWORD);
 		final var MENU = Menu
 			.builder()
+			.item(8, new Menu.Item(ItemStack
+				.builder(Material.COMPASS)
+				.amount(1)
+				.displayName(Component
+					.text("Server Picker")
+					.decoration(TextDecoration.BOLD, true)
+					.decoration(TextDecoration.ITALIC, false))
+				.build(), (player) -> {
+				try {
+					player.openInventory(SERVER_PICKER.getInventory());
+				} catch (JetStreamApiException | IOException | InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}))
 			.item(22, new Menu.Item(ItemStack
 				.builder(Material.IRON_SWORD)
 				.amount(1)
@@ -108,11 +122,7 @@ public class Main {
 					.append(Component
 						.text("Minestom/Arena", TextColor.color(0xFF0000), TextDecoration.BOLD)
 						.decoration(TextDecoration.ITALIC, false)))
-				.build(), (player) -> {
-				logger.info("Player {} ({}) clicked on Arena", player.getUsername(), player.getUuid());
-
-				nats.transferPlayer(player.getUuid(), "arena");
-			}))
+				.build(), (player) -> nats.transferPlayer(player.getUuid(), "arena")))
 			.build();
 
 		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
@@ -141,6 +151,24 @@ public class Main {
 			player.setGameMode(GameMode.ADVENTURE);
 
 			MENU.apply(player.getInventory());
+		});
+		globalEventHandler.addListener(ItemDropEvent.class, event -> event.setCancelled(true));
+		globalEventHandler.addListener(PlayerUseItemEvent.class, event -> {
+			event.setCancelled(true);
+
+			var item = event.getItemStack();
+			if (!item
+				.material()
+				.equals(Material.COMPASS)) {
+				return;
+			}
+
+			var player = event.getPlayer();
+			try {
+				player.openInventory(SERVER_PICKER.getInventory());
+			} catch (JetStreamApiException | IOException | InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		});
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
 			var player = event.getPlayer();

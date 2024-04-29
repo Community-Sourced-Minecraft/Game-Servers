@@ -8,13 +8,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.*;
 import io.nats.client.api.KeyValueConfiguration;
+import io.nats.client.api.KeyValueEntry;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class NATSConnection {
 	private final ServerInfo info;
@@ -81,6 +82,25 @@ public class NATSConnection {
 
 	public void registerThisInstance(int port) throws IOException, JetStreamApiException {
 		instancesKV.put(info.podName(), gson.toJson(info.instanceInfo(port)));
+	}
+
+	public List<String> getServersForGamemode(String gamemode) throws JetStreamApiException, IOException, InterruptedException {
+		return instancesKV
+			.keys()
+			.parallelStream()
+			.map(k -> {
+				try {
+					return instancesKV.get(k);
+				} catch (IOException | JetStreamApiException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(v -> gson
+				.fromJson(new String(v.getValue()), ServerInfo.InstanceInfo.class)
+				.gamemode()
+				.equals(gamemode))
+			.map(KeyValueEntry::getKey)
+			.toList();
 	}
 
 	public void transferPlayer(UUID uuid, String to) {
