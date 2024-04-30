@@ -1,7 +1,6 @@
 package com.github.communitysourcedminecraft.utils;
 
 import com.github.communitysourcedminecraft.hosting.Hosting;
-import com.github.communitysourcedminecraft.hosting.NATSConnection;
 import io.nats.client.JetStreamApiException;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -41,13 +40,15 @@ public class ServerPicker {
 		for (int i = 0; i < servers.size(); i++) {
 			var server = servers.get(i);
 
+			var namePrettified = server.substring(0, 1).toUpperCase() + server.substring(1).replace("-", " #");
+
 			final var isCurrent = server.equals(currentServer);
 
 			var itemBuilder = ItemStack
 				.builder(material)
 				.amount(1)
 				.displayName(Component
-					.text(server)
+					.text(namePrettified)
 					.decoration(TextDecoration.ITALIC, false));
 
 			if (isCurrent) {
