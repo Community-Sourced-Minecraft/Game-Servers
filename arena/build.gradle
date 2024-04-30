@@ -23,6 +23,12 @@ dependencies {
     implementation project(":hosting")
 }
 
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
 tasks {
     build { dependsOn(shadowJar) }
 }
