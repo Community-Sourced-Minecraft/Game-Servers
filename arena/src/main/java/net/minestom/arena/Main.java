@@ -1,5 +1,6 @@
 package net.minestom.arena;
 
+import com.github.communitysourcedminecraft.hosting.Hosting;
 import com.github.communitysourcedminecraft.hosting.NATSConnection;
 import com.github.communitysourcedminecraft.hosting.ServerInfo;
 import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
@@ -62,9 +63,8 @@ final class Main {
             throw new RuntimeException(e);
         }
 
-
-        var info = ServerInfo.parse();
-        var nats = NATSConnection.connectBlocking(info);
+		var hosting = Hosting.init("arena");
+        var nats = hosting.getNats();
 
         nats.registerHandler(RPCType.START_INSTALL, (reqData, _msg) -> {
             var req = gson.fromJson(reqData, RPCStartInstall.Request.class);
@@ -183,7 +183,7 @@ final class Main {
             if (CONFIG.server().mojangAuth()) MojangAuth.init();
         }
 
-        nats.registerThisInstance(CONFIG.server().port());
+        nats.registerThisInstance();
         MinecraftServer
             .getSchedulerManager()
             .buildShutdownTask(() -> {

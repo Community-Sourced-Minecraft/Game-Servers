@@ -37,7 +37,6 @@ public class Main {
 		.disableHtmlEscaping()
 		.create();
 
-	private static final int PORT = 25565;
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
 
 	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException, JetStreamApiException {
@@ -47,7 +46,7 @@ public class Main {
 			VelocityProxy.enable(proxySecret);
 		}
 
-		var hosting = Hosting.init();
+		var hosting = Hosting.init("lobby");
 		var info = hosting.getInfo();
 		var nats = hosting.getNats();
 
@@ -196,7 +195,7 @@ public class Main {
 				.teleport(SPAWN);
 		});
 
-		nats.registerThisInstance(PORT);
+		nats.registerThisInstance();
 		MinecraftServer
 			.getSchedulerManager()
 			.buildShutdownTask(() -> {
@@ -207,7 +206,7 @@ public class Main {
 				}
 			});
 
-		minecraftServer.start("0.0.0.0", PORT);
+		minecraftServer.start("0.0.0.0", info.port());
 	}
 
 	private static String getPlayerIP(Player player) {

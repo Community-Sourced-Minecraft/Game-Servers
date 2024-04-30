@@ -60,17 +60,30 @@ public class NATSConnection {
 		dispatcher.subscribe(info.rpcNetworkSubject(), info.podName());
 		dispatcher.subscribe(info.rpcNetworkSubject(), info.gameMode());
 
-		connection
-			.keyValueManagement()
-			.create(KeyValueConfiguration
-				.builder()
-				.name(info.kvInstancesKey())
-				.build());
+		try {
+			connection
+				.keyValueManagement()
+				.create(KeyValueConfiguration
+					.builder()
+					.name(info.kvInstancesKey())
+					.build());
+		} catch (JetStreamApiException e) {
+			if (e.getErrorCode() == 400) {
+				logger.info("Key-Value store already exists");
+			} else {
+				throw e;
+			}
+		}
 		this.instancesKV = connection.keyValue(info.kvInstancesKey());
 	}
 
 	public static NATSConnection connectBlocking(ServerInfo info) throws IOException, InterruptedException, JetStreamApiException {
 		var natsUrl = System.getenv("NATS_URL");
+		if (natsUrl == null) {
+			logger.warn("NATS_URL not set, defaulting to localhost:4222");
+			natsUrl = "nats://localhost:4222";
+		}
+
 		var nc = Nats.connectReconnectOnConnect(natsUrl);
 
 		return new NATSConnection(info, nc);
@@ -80,8 +93,9 @@ public class NATSConnection {
 		handlers.put(type, handler);
 	}
 
-	public void registerThisInstance(int port) throws IOException, JetStreamApiException {
-		instancesKV.put(info.podName(), gson.toJson(info.instanceInfo(port)));
+	public void registerThisInstance() throws IOException, JetStreamApiException {
+		logger.info("Registering this instance: {}", info.instanceInfo());
+		instancesKV.put(info.podName(), gson.toJson(info.instanceInfo()));
 	}
 
 	public void deregisterThisInstance() throws IOException, JetStreamApiException {
