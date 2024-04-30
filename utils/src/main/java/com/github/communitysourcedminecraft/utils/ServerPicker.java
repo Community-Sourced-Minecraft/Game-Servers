@@ -14,15 +14,15 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 public class ServerPicker {
 	private final String gamemode;
 	private final Hosting hosting;
-	private final Material material;
 
 	public Inventory getInventory() throws JetStreamApiException, IOException, InterruptedException {
-		var inv = new Inventory(InventoryType.CHEST_3_ROW, Component.text("Server Picker for " + gamemode));
+		var inv = new Inventory(InventoryType.CHEST_3_ROW, Component.text("Server Picker for " + gamemode.substring(0, 1).toUpperCase() + gamemode.substring(1)));
 
 		var menuBuilder = Menu.builder();
 
@@ -43,6 +43,7 @@ public class ServerPicker {
 			var namePrettified = server.substring(0, 1).toUpperCase() + server.substring(1).replace("-", " #");
 
 			final var isCurrent = server.equals(currentServer);
+			var material = isCurrent ? Material.LIME_CONCRETE : Material.WHITE_CONCRETE;
 
 			var itemBuilder = ItemStack
 				.builder(material)
@@ -57,9 +58,36 @@ public class ServerPicker {
 					builder.enchantment(Enchantment.UNBREAKING, (short) 1);
 				});
 
-				itemBuilder.lore(Component
-					.text("Current server")
-					.color(NamedTextColor.GRAY));
+				itemBuilder.lore(
+						Arrays.asList(
+								// TODO: Fetch player count
+								Component
+										.text("Players: TODO")
+										.decoration(TextDecoration.ITALIC, false)
+										.color(NamedTextColor.GRAY),
+								Component
+										.text(""),
+								Component
+										.text("Current server")
+										.decoration(TextDecoration.ITALIC, false)
+										.color(NamedTextColor.GRAY)
+						)
+				);
+			} else {
+				itemBuilder.lore(
+						Arrays.asList(
+								// TODO: Fetch player count
+								Component
+										.text("Players: TODO")
+										.decoration(TextDecoration.ITALIC, false)
+										.color(NamedTextColor.GRAY),
+								Component.text(""),
+								Component
+										.text("Click here to join!")
+										.decoration(TextDecoration.ITALIC, false)
+										.color(NamedTextColor.YELLOW)
+						)
+				);
 			}
 
 			menuBuilder.item(i, new Menu.Item(itemBuilder.build(), player -> hosting

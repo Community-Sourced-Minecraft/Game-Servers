@@ -89,14 +89,14 @@ public class Main {
 			.openConnection();
 		instanceContainer.setChunkLoader(new PolarLoader(conn.getInputStream()));
 
-		final var SERVER_PICKER = new ServerPicker("lobby", hosting, Material.DIAMOND_SWORD);
+		final var SERVER_PICKER = new ServerPicker("lobby", hosting);
 		final var MENU = Menu
 			.builder()
 			.item(8, new Menu.Item(ItemStack
-				.builder(Material.COMPASS)
+				.builder(Material.NETHER_STAR)
 				.amount(1)
 				.displayName(Component
-					.text("Server Picker")
+					.text("ѕᴇʀᴠᴇʀ ᴘɪᴄᴋᴇʀ")
 					.decoration(TextDecoration.BOLD, true)
 					.decoration(TextDecoration.ITALIC, false))
 				.build(), (player) -> {
@@ -155,10 +155,12 @@ public class Main {
 		globalEventHandler.addListener(PlayerUseItemEvent.class, event -> {
 			event.setCancelled(true);
 
+			// TODO: Make it proper item handling
+
 			var item = event.getItemStack();
 			if (!item
 				.material()
-				.equals(Material.COMPASS)) {
+				.equals(Material.NETHER_STAR)) {
 				return;
 			}
 
