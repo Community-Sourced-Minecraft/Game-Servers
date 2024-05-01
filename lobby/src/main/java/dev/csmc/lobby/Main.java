@@ -26,6 +26,7 @@ import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.client.play.ClientChatAckPacket;
+import net.minestom.server.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ public class Main {
 		.create();
 
 	private static final Pos SPAWN = new Pos(0, 10, 0, 180f, 0f);
+	private static final Tag<String> menuTypeTag = Tag.String("menu-type");
 
 	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException, JetStreamApiException {
 		var proxySecret = System.getenv("PROXY_SECRET");
@@ -102,6 +104,7 @@ public class Main {
 					.text("ѕᴇʀᴠᴇʀ ᴘɪᴄᴋᴇʀ")
 					.decoration(TextDecoration.BOLD, true)
 					.decoration(TextDecoration.ITALIC, false))
+				.set(menuTypeTag, "server-picker")
 				.build(), (player) -> {
 				try {
 					player.openInventory(SERVER_PICKER.getInventory());
@@ -157,23 +160,19 @@ public class Main {
 		globalEventHandler.addListener(ItemDropEvent.class, event -> event.setCancelled(true));
 		globalEventHandler.addListener(PlayerUseItemEvent.class, event -> {
 			event.setCancelled(true);
-
-			// TODO: Make it proper item handling
-
-			var item = event.getItemStack();
-			if (!item
-				.material()
-				.equals(Material.NETHER_STAR)) {
-				return;
-			}
-
 			var player = event.getPlayer();
-			try {
-				player.openInventory(SERVER_PICKER.getInventory());
-			} catch (JetStreamApiException | IOException | InterruptedException e) {
-				throw new RuntimeException(e);
+
+			switch(event.getItemStack().getTag(menuTypeTag)) {
+				case "server-picker":
+					try {
+						player.openInventory(SERVER_PICKER.getInventory());
+					} catch (JetStreamApiException | IOException | InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+					break;
 			}
 		});
+
 		globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> {
 			var player = event.getPlayer();
 
