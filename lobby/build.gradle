@@ -17,7 +17,6 @@ dependencies {
     implementation "dev.hollowcube:polar:1.8.1"
     implementation "io.nats:jnats:2.17.6"
     implementation "com.google.code.gson:gson:2.10.1"
-    implementation "io.nats:jnats:2.17.6"
     implementation project(":hosting")
     implementation project(":utils")
 }
