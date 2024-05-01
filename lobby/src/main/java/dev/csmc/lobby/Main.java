@@ -1,11 +1,14 @@
-package com.github.communitysourcedminecraft.lobby;
+package dev.csmc.lobby;
 
-import com.github.communitysourcedminecraft.hosting.Hosting;
-import com.github.communitysourcedminecraft.hosting.rpc.*;
-import com.github.communitysourcedminecraft.utils.Menu;
-import com.github.communitysourcedminecraft.utils.ServerPicker;
+import dev.csmc.hosting.Hosting;
+import dev.csmc.utils.Menu;
+import dev.csmc.utils.ServerPicker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.csmc.hosting.rpc.RPCResponse;
+import dev.csmc.hosting.rpc.RPCStartInstall;
+import dev.csmc.hosting.rpc.RPCType;
+import dev.csmc.hosting.rpc.Status;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.api.KeyValueConfiguration;
 import net.hollowcube.polar.PolarLoader;

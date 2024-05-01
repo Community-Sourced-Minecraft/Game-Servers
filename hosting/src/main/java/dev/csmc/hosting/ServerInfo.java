@@ -1,4 +1,4 @@
-package com.github.communitysourcedminecraft.hosting;
+package dev.csmc.hosting;
 
 import org.slf4j.Logger;
 

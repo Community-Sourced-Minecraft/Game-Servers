@@ -1,4 +1,4 @@
-package com.github.communitysourcedminecraft.hosting;
+package dev.csmc.hosting;
 
 import io.nats.client.JetStreamApiException;
 import lombok.AccessLevel;

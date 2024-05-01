@@ -4,7 +4,7 @@ plugins {
     id "io.freefair.lombok"  version "8.6"
 }
 
-group = "com.github.communitysourcedminecraft"
+group = "dev.csmc"
 
 repositories {
     mavenCentral()

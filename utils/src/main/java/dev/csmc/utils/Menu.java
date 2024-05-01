@@ -1,4 +1,4 @@
-package com.github.communitysourcedminecraft.utils;
+package dev.csmc.utils;
 
 import lombok.RequiredArgsConstructor;
 import net.minestom.server.entity.Player;

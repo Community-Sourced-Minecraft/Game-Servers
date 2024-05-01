@@ -1,12 +1,10 @@
 package net.minestom.arena;
 
-import com.github.communitysourcedminecraft.hosting.Hosting;
-import com.github.communitysourcedminecraft.hosting.NATSConnection;
-import com.github.communitysourcedminecraft.hosting.ServerInfo;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCStartInstall;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
-import com.github.communitysourcedminecraft.hosting.rpc.Status;
+import dev.csmc.hosting.Hosting;
+import dev.csmc.hosting.rpc.RPCResponse;
+import dev.csmc.hosting.rpc.RPCStartInstall;
+import dev.csmc.hosting.rpc.RPCType;
+import dev.csmc.hosting.rpc.Status;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.JetStreamApiException;
@@ -129,11 +127,9 @@ final class Main {
             )));
 
             // Chat
-            handler.addListener(PlayerChatEvent.class, chatEvent -> {
-                chatEvent.setChatFormat((event) -> Component.text(event.getEntity().getUsername())
-                        .append(Component.text(" | ", NamedTextColor.DARK_GRAY)
-                                .append(Component.text(event.getMessage(), NamedTextColor.WHITE))));
-            });
+            handler.addListener(PlayerChatEvent.class, chatEvent -> chatEvent.setChatFormat((event) -> Component.text(event.getEntity().getUsername())
+                    .append(Component.text(" | ", NamedTextColor.DARK_GRAY)
+                            .append(Component.text(event.getMessage(), NamedTextColor.WHITE)))));
 
             // Monitoring
             AtomicReference<TickMonitor> lastTick = new AtomicReference<>();

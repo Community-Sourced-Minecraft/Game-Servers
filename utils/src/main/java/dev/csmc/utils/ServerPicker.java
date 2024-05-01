@@ -1,6 +1,6 @@
-package com.github.communitysourcedminecraft.utils;
+package dev.csmc.utils;
 
-import com.github.communitysourcedminecraft.hosting.Hosting;
+import dev.csmc.hosting.Hosting;
 import io.nats.client.JetStreamApiException;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;

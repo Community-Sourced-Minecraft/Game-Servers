@@ -1,9 +1,9 @@
-package com.github.communitysourcedminecraft.hosting;
+package dev.csmc.hosting;
 
-import com.github.communitysourcedminecraft.hosting.rpc.RPCRequest;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCResponse;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCTransferPlayer;
-import com.github.communitysourcedminecraft.hosting.rpc.RPCType;
+import dev.csmc.hosting.rpc.RPCRequest;
+import dev.csmc.hosting.rpc.RPCResponse;
+import dev.csmc.hosting.rpc.RPCTransferPlayer;
+import dev.csmc.hosting.rpc.RPCType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nats.client.*;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class NATSConnection {
 	private final ServerInfo info;

@@ -1,4 +1,4 @@
-package com.github.communitysourcedminecraft.hosting.rpc;
+package dev.csmc.hosting.rpc;
 
 public class RPCStartInstall {
 	public record Request() {
