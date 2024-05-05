@@ -28,9 +28,8 @@ public class ArenaGUI extends Inventory {
             ArenaPlayer aplayer = (ArenaPlayer) player;
             ArenaGame arenaGame;
 
-
             if(slot == 13) {
-                if (aplayer.getArenaGroup() != null) {
+                if (aplayer.getArenaGroup() != null && aplayer.getArenaGroup().leader.getUuid().equals(aplayer.getUuid())) {
                     // TODO: Fix this braindead code
 
                     aplayer.arenaGroup.players.add(aplayer);
