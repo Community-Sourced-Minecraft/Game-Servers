@@ -1,27 +1,27 @@
 package dev.csmc.polarconverter;
 
-import net.hollowcube.polar.AnvilPolar;
-import net.hollowcube.polar.PolarWriter;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
+import static dev.csmc.polarconverter.Logic.convert;
 import static org.slf4j.LoggerFactory.*;
 
 public class Main {
 	private static final Logger LOGGER = getLogger(Main.class);
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws InterruptedException, InvocationTargetException {
 		if (args.length == 0) {
-			LOGGER.error("Missing input file path");
-			LOGGER.info("Usage: java -jar polar-converter.jar <world> <output>");
-			System.exit(1);
+			Gui.show();
+			return;
 		}
 
 		var inputFilePath = Path.of(args[0]);
-		if (!inputFilePath.toFile().exists()) {
+		if (!inputFilePath
+			.toFile()
+			.exists()) {
 			LOGGER.error("Input file does not exist");
 			System.exit(1);
 		}
@@ -34,11 +34,13 @@ public class Main {
 
 		var outputFilePath = Path.of(args[1]);
 
-		var world = AnvilPolar.anvilToPolar(inputFilePath);
-		var bytes = PolarWriter.write(world);
+		try {
+			convert(inputFilePath, outputFilePath);
 
-		Files.write(outputFilePath, bytes);
-
-		LOGGER.info("Conversion successful");
+			LOGGER.info("Conversion successful");
+		} catch (IOException e) {
+			LOGGER.error("Failed to convert world", e);
+			System.exit(1);
+		}
 	}
 }
