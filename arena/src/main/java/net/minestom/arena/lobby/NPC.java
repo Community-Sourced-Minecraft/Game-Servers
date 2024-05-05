@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-// https://gist.github.com/iam4722202468/36630043ca89e786bb6318e296f822f8
+// https://gist.github.com/iam47222024z68/36630043ca89e786bb6318e296f822f8
 final class NPC extends EntityCreature {
     private final String name;
     private final PlayerSkin skin;
