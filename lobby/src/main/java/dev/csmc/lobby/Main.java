@@ -128,6 +128,15 @@ public class Main {
 						.text("Minestom/Arena", TextColor.color(0xFF0000), TextDecoration.BOLD)
 						.decoration(TextDecoration.ITALIC, false)))
 				.build(), (player) -> nats.transferPlayer(player.getUuid(), "arena")))
+			.item(23, new Menu.Item(ItemStack
+				.builder(Material.IRON_SWORD)
+				.amount(1)
+				.displayName(Component
+					.text("Arena")
+					.decoration(TextDecoration.BOLD, true)
+					.decoration(TextDecoration.ITALIC, false)
+					.append(Component.text(" Beta", TextColor.color(0xFFFF22))))
+				.build(), (player) -> nats.transferPlayer(player.getUuid(), "arena-beta")))
 			.build();
 
 		var globalEventHandler = MinecraftServer.getGlobalEventHandler();
@@ -162,7 +171,9 @@ public class Main {
 			event.setCancelled(true);
 			var player = event.getPlayer();
 
-			switch(event.getItemStack().getTag(menuTypeTag)) {
+			switch (event
+				.getItemStack()
+				.getTag(menuTypeTag)) {
 				case "server-picker":
 					try {
 						player.openInventory(SERVER_PICKER.getInventory());

@@ -26,6 +26,9 @@ case "\$app" in
     arena)
         exec java -jar /app/arena.jar "\$@"
         ;;
+    arena-beta)
+        exec java -jar /app/arena-new.jar "\$@"
+        ;;
     *)
         echo "Unknown app: \$app, trying to run it as a command"
         exec "\$app" "\$@"
