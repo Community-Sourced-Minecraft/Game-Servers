@@ -1,5 +1,7 @@
 package dev.csmc.arena.mobs;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.EntityCreature;
@@ -7,7 +9,9 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.entity.EntityDeathEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class ArenaMob extends EntityCreature {
     private static final int BLOCK_LENGTH = 6;
@@ -15,6 +19,7 @@ public class ArenaMob extends EntityCreature {
             "", "▏", "▎", "▍", "▌", "▋", "▊", "▉"
     );
     private static final String FULL_BLOCK_CHAR = "█";
+    public HashMap<UUID, Integer> damagedBy = new HashMap<>();
 
     public ArenaMob(EntityType type) {
         super(type);

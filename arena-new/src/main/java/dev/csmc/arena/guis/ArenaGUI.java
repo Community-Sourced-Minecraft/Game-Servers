@@ -31,15 +31,13 @@ public class ArenaGUI extends Inventory {
             if(slot == 13) {
                 if (aplayer.getArenaGroup() != null && aplayer.getArenaGroup().leader.getUuid().equals(aplayer.getUuid())) {
                     // TODO: Fix this braindead code
-
-                    aplayer.arenaGroup.players.add(aplayer);
-                    arenaGame = new ArenaGame(aplayer.arenaGroup.players);
+                    var arenaPlayers = aplayer.arenaGroup.players;
+                    arenaPlayers.add(aplayer.arenaGroup.leader);
+                    arenaGame = new ArenaGame(arenaPlayers);
 
                     for (ArenaPlayer plr: aplayer.arenaGroup.players) {
                         plr.arenaGame = arenaGame;
                     }
-
-                    aplayer.arenaGroup.players.remove(aplayer);
                 } else {
                     arenaGame = new ArenaGame(List.of(aplayer));
                     aplayer.arenaGame = arenaGame;

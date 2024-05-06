@@ -1,5 +1,6 @@
 package dev.csmc.arena.guis;
 
+import dev.csmc.arena.ArenaGame;
 import dev.csmc.arena.ArenaPlayer;
 import dev.csmc.arena.guis.upgrades.PersonalUpgrades;
 import dev.csmc.arena.guis.upgrades.TeamUpgrades;
@@ -45,7 +46,7 @@ public class UpgradesGUI extends Inventory {
 
         setItemStack(32,
                 ItemStack.builder(Material.FEATHER)
-                        .displayName(Component.text("Ready up!", arenaPlayer.getArenaGame().readyPlayers.get(arenaPlayer.getUuid()) ? NamedTextColor.GREEN : NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
+                        .displayName(Component.text("Ready up!", arenaPlayer.getArenaGame().readyPlayers.get(arenaPlayer.getUuid()) ? NamedTextColor.RED : NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false))
                         .build()
         );
 
@@ -62,6 +63,7 @@ public class UpgradesGUI extends Inventory {
                     player.closeInventory();
                 }
                 case 32 -> {
+                    if(((ArenaPlayer) player).getArenaGame().gameState != ArenaGame.GameState.BREAK) return;
                     ((ArenaPlayer) player).getArenaGame().readyUp((ArenaPlayer) player);
                     setItemStack(32,
                             ItemStack.builder(Material.FEATHER)
