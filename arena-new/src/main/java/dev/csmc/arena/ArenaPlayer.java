@@ -1,6 +1,7 @@
 package dev.csmc.arena;
 
 import dev.csmc.arena.mobs.ArenaMob;
+import dev.csmc.arena.upgrades.IUpgrade;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -14,6 +15,7 @@ import net.minestom.server.network.player.PlayerConnection;
 import net.minestom.server.scoreboard.Sidebar;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 @Setter
@@ -23,6 +25,7 @@ public class ArenaPlayer extends Player {
     public ArenaGame arenaGame = null;
     public int coins = 0;
     public ArenaClass currentClass = ArenaClass.BERSERK;
+    public HashMap<IUpgrade, Number> upgrades = new HashMap<>();
 
     public ArenaPlayer(@NotNull UUID uuid, @NotNull String username, @NotNull PlayerConnection playerConnection) {
         super(uuid, username, playerConnection);

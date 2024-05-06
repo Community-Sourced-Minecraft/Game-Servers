@@ -59,6 +59,9 @@ public class UpgradesGUI extends Inventory {
                 case 13 -> {
                     player.openInventory(new PersonalUpgrades(arenaPlayer));
                 }
+                case 15 -> {
+                    player.openInventory(new PersonalUpgrades(arenaPlayer));
+                }
                 case 31 -> {
                     player.closeInventory();
                 }

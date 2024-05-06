@@ -1,6 +1,7 @@
 package dev.csmc.arena.guis.upgrades;
 
 import dev.csmc.arena.ArenaPlayer;
+import dev.csmc.arena.guis.UpgradesGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -37,15 +38,15 @@ public class TeamUpgrades extends Inventory {
 
         setItemStack(31,
                 ItemStack.builder(Material.BARRIER)
-                        .displayName(Component.text("Close", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
+                        .displayName(Component.text("Go Back", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
                         .build()
         );
 
         addInventoryCondition((player, slot, clickType, result) -> {
             result.setCancel(true);
             switch (slot) {
-                case 11 -> {
-                    
+                case 31 -> {
+                    player.openInventory(new UpgradesGUI((ArenaPlayer) player));
                 }
             }
         });
