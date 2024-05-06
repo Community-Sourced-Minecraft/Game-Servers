@@ -21,13 +21,13 @@ shift
 
 case "\$app" in
     lobby)
-        exec java -jar /app/lobby.jar "\$@"
+        exec java \$JAVA_OPTS -jar /app/lobby.jar "\$@"
         ;;
     arena)
-        exec java -jar /app/arena.jar "\$@"
+        exec java \$JAVA_OPTS -jar /app/arena.jar "\$@"
         ;;
     arena-beta)
-        exec java -jar /app/arena-new.jar "\$@"
+        exec java \$JAVA_OPTS -jar /app/arena-new.jar "\$@"
         ;;
     *)
         echo "Unknown app: \$app, trying to run it as a command"
