@@ -44,7 +44,7 @@ final class Main {
         MinecraftServer minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(ArenaPlayer::new);
 
-        var hosting = Hosting.init("arena");
+        var hosting = Hosting.init("arena-new");
         var info = hosting.getInfo();
         var nats = hosting.getNats();
 
