@@ -27,3 +27,12 @@ export PORT=25566
 export PROXY_SECRET=csmc
 $JAVA_HOME/bin/java -jar lobby/build/libs/lobby-all.jar
 ```
+
+## Thanks
+
+<div style="display: flex; flex-direction: column; width: fit-content; align-items: center">
+  <a href="https://qaze.app">
+    <img src="./.misc/qaze.svg" alt="Qaze - The NATS GUI" width="200"/>
+  </a>
+  <p>Qaze - providing us with <b>the</b> GUI for NATS</p>
+</div>
